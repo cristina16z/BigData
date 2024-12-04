@@ -36,6 +36,17 @@ db.restaurants.find({},{_id:0, restaurant_id:1, name:1, cuisine:1, borough:1});
  _id per tots els documents en la col.lecció Restaurants*/
 /*El campo zipcode está anidado dentro del campo address y cambia la sintaxis.*/
 /*Resultado 3772 documentos)*/
+use('BigData');
+db.restaurants.find(
+    {},
+    {
+        _id: 0,
+        restaurant_id: 1,
+        name: 1,
+        borough: 1,
+        "address.zipcode": 1
+    }
+);
 
 
 /*1.5. Escriu una consulta per mostrar tot els restaurants que estan en el Bronx*/
@@ -73,23 +84,81 @@ db.restaurants.find({grades:{$elemMatch:{score: {$gt:80, $lt:100}}}}).count();
 
 /*1.10. Escriu una consulta per trobar els restaurants quins localitzen en valor de latitud menys que -95.754168*/
 /*Resultado 3 documentos)*/
+use('BigData');
+db.restaurants.find(
+    {
+        "address.coord.0": { $lt: -95.754168 }
+    },
+    {
+        restaurant_id: 1,
+        name: 1,
+        borough: 1,
+        cuisine: 1
+    }
+);
 
 
 /*1.11. Escriu una consulta de MongoDB per a trobar els restaurants que no preparen cap cuisine de 'American' i 
 el seu puntaje de qualificació superior a 70 i latitud inferior a -65.754168*/
 /*La palabra "American" tiene un espacio detrás y la búsqueda hay que hacerla por "American "
 /*Resultado 5 documentos)*/
+use('BigData');
+db.restaurants.find(
+    {
+        cuisine: { $ne: "American " }, 
+        "grades.score": { $gt: 70 }, 
+        "address.coord.0": { $lt: -65.754168 } 
+    },
+    {
+        restaurant_id: 1,
+        name: 1,
+        borough: 1,
+        cuisine: 1,
+        "address.coord": 1 
+    }
+);
+
+
 
 
 /*1.12. Escriu una consulta per trobar els restaurants quins no preparen cap cuisine de 'American' i va 
 aconseguir un marcador més que 70 i localitzat en la longitud menys que -65.754168. 
 Nota : Fes aquesta consulta sense utilitzar $and operador*/
 /*Resultado 5 documentos)*/
+use('BigData');
+db.restaurants.find(
+    {
+        cuisine: { $ne: "American " },
+        "grades.score": { $gt: 70 },
+        "address.coord.0": { $lt: -65.754168 }
+    },
+    {
+        restaurant_id: 1,
+        name: 1,
+        borough: 1,
+        cuisine: 1
+    }
+).count();
+
 
 
 /*2.1. Escriu una consulta per trobar els restaurants quins no preparen cap cuisine de 'American ' i 
 va aconseguir un punt de grau 'A' no pertany a Brooklyn. S'ha de mostrar el document segons la cuisine en ordre descendent*/
 /*Resultado 2017 documentos*/
+use('BigData');
+db.restaurants.find(
+    {
+        cuisine: { $ne: "American " },
+        borough: { $ne: "Brooklyn" },
+        "grades.grade": "A"
+    },
+    {
+        restaurant_id: 1,
+        name: 1,
+        borough: 1,
+        cuisine: 1
+    }
+).sort({ cuisine: -1 });
 
 
 /*2.2. Escriu una consulta per trobar el restaurant_id, name, borough i cuisine per a aquells restaurants 
@@ -108,33 +177,109 @@ db.restaurants.find( { name: {"$regex": "ces$"}}, {restaurant_id:1, name:1, boro
 /*2.4. Escriu una consulta per trobar el restaurant_id, name, borough i cuisine per a aquells restaurants quin 
 contenir 'Reg' com tres lletres en algun lloc en el seu nom*/
 /*Resultado 7 documentos*/
+use('BigData');
+db.restaurants.find(
+    {
+        name: { $regex: "Reg", $options: "i" }
+    },
+    {
+        restaurant_id: 1,
+        name: 1,
+        borough: 1,
+        cuisine: 1
+    }
+);
 
 
 /*2.5. Escriu una consulta per trobar els restaurants quins pertanyen al Bronx i va preparar qualsevol plat 
 American o xinés. "American " va con un espacio al final*/
 /*Resultado 91 documentos*/
+use('BigData');
+db.restaurants.find(
+    {
+        borough: "Bronx",
+        cuisine: { $in: ["American ", "Chinese"] }
+    },
+    {
+        restaurant_id: 1,
+        name: 1,
+        borough: 1,
+        cuisine: 1
+    }
+);
 
 
 /*2.6. Escriu una consulta per trobar el restaurant_id, name, borough i cuisine per a aquells restaurants 
 que pertanyen a Staten Island o Queens o Bronx or Brooklyn*/
 /*Resultado 1889 docuemntos*/
+use('BigData');
+db.restaurants.find(
+    {
+        borough: { $in: ["Staten Island", "Queens", "Bronx", "Brooklyn"] }
+    },
+    {
+        restaurant_id: 1,
+        name: 1,
+        borough: 1,
+        cuisine: 1
+    }
+);
 
 
 /*2.7. Escriu una consulta per trobar el restaurant_id, name, borough i cuisine per a aquells restaurants 
 que no pertanyen a Staten Island o Queens o Bronx or Brooklyn*/
 /*Resultado 1883 documentos*/
+use('BigData');
+db.restaurants.find(
+    {
+        borough: { $nin: ["Staten Island", "Queens", "Bronx", "Brooklyn"] }
+    },
+    {
+        restaurant_id: 1,
+        name: 1,
+        borough: 1,
+        cuisine: 1
+    }
+);
 
 
 
 /*2.8. Escriu una consulta per trobar el restaurant_id, name, borough i cuisine per a aquells restaurants 
 que aconsegueixin un marcador quin no és més que 10*/
 /*Resultado 3529 documentos */ 
+use('BigData');
+db.restaurants.find(
+    {
+        "grades.score": { $lte: 10 }
+    },
+    {
+        restaurant_id: 1,
+        name: 1,
+        borough: 1,
+        cuisine: 1
+    }
+).count();
 
 
 /*2.9. Escriu una consulta per trobar el restaurant_id, name, borough i cuisine per a aquells restaurants que 
 preparen peix excepte 'American ' i 'Chinese' o el name del restaurant comença amb lletres 'Wil'*/
 /*Resultado 2402 documentos */ 
 
+use('BigData');
+db.restaurants.find(
+    {
+        $or: [
+            { cuisine: { $nin: ["American ", "Chinese"] } },
+            { name: { $regex: "^Wil", $options: "i" } }
+        ]
+    },
+    {
+        restaurant_id: 1,
+        name: 1,
+        borough: 1,
+        cuisine: 1
+    }
+).count();
 
 
 /*2.10. Escriu una consulta per trobar el restaurant_id, name, i grades per a aquells restaurants que aconsegueixin 
@@ -184,42 +329,115 @@ db.restaurants.find( {  "grades.1" :  { date :  ISODate("2014-08-11T00:00:00Z") 
 /*3.2. Escriu una consulta per trobar el restaurant_id, name, adre a i ubicaci  geogr fica per a aquells restaurants 
 on el segon element del array coord cont  un valor quin  s m s que 42 i fins a 52*/
 /*Resultado 7 documentos*/
+use('BigData');
+db.restaurants.find(
+    {
+        "address.coord.1": { $gt: 42, $lt: 52 }
+    },
+    {
+        restaurant_id: 1,
+        name: 1,
+        address: 1,
+        "address.coord": 1
+    }
+).count();
 
 
 /*3.3. Escriu una consulta per organitzar el nom dels restaurants en ordre ascendent juntament amb totes les columnes*/
 /*Resultado 3772 documentos*/
+use('BigData');
+db.restaurants.find({}).sort({ name: 1 }).count();
 
 
 /*3.4. Escriu una consulta per organitzar el nom dels restaurants en descendir juntament amb totes les columnes*/
 /*Resultado 3772 docuemntos. El primero (DESC) es Zum Stammtisch*/
+use('BigData');
+db.restaurants.find({}).sort({ name: -1 });
 
 
 /*3.5. Escriu una consulta a organitzar el nom de la cuisine en ordre ascendent i per el mateix barri de cuisine. 
 Ordre descendint*/
 /*Resultado 3772 documentos*/ 
+use('BigData');
+db.restaurants.find({}).sort({ cuisine: 1, borough: -1 }).count();
 
 
 /*3.6. Escriu una consulta per saber tant si totes les direccions contenen el carrer o no*/
 /*Resultado 0 documentos*/ 
 
+use('BigData');
+db.restaurants.find(
+    { "address.street": { $exists: true } },
+    {
+        restaurant_id: 1,
+        name: 1,
+        "address.street": 1
+    }
+);
 
 /*3.7. Escriu una consulta quin seleccionarà tots el documents en la col.lecció de restaurants on el valor del camp coord és 
 Double*/
 /*Resultado 3772 documentos*/ 
+use('BigData');
+db.restaurants.find(
+    {
+        "address.coord": { $type: "double" }
+    },
+    {
+        restaurant_id: 1,
+        name: 1,
+        "address.coord": 1
+    }
+).count();
 
 
 /*3.8. Escriu una consulta quin seleccionarà el restaurant_id, name i grade per a aquells restaurants quins retorns 0 com a 
 resta després de dividir el marcador per 7*/
 /*Resultado 1585 documentos*/ 
+use('BigData');
+db.restaurants.find(
+    {
+        "grades.score": { $mod: [7, 0] }
+    },
+    {
+        restaurant_id: 1,
+        name: 1,
+        grades: 1
+    }
+).count();
 
 
 /*3.9. Escriu una consulta per trobar el name de restaurant, borough, longitud i altitud i cuisine per a aquells restaurants 
 que contenen 'mon' com tres lletres en algun lloc del seu name*/
 /*Resultado 32 o 21 documentos si no se consideran mayusculas*/ 
 
+use('BigData');
+db.restaurants.find(
+    {
+        name: { $regex: "mon", $options: "i" }
+    },
+    {
+        name: 1,
+        borough: 1,
+        "address.coord": 1,
+        cuisine: 1
+    }
+).count();
 
 
 /*3.10. Escriu una consulta per trobar el name de restaurant, borough, longitud i latitud i cuisine per a aquells restaurants 
 que conteinen 'Mad' com primeres tres lletres del seu name*/
 /*Resultado 8 documentos*/ 
 
+use('BigData');
+db.restaurants.find(
+    {
+        name: { $regex: "^Mad", $options: "i" }
+    },
+    {
+        name: 1,
+        borough: 1,
+        "address.coord": 1,
+        cuisine: 1
+    }
+).count();
